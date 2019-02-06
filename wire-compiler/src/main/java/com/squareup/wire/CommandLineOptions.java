@@ -25,44 +25,61 @@ import java.util.Scanner;
 import java.util.Set;
 
 final class CommandLineOptions {
-  public static final String PROTO_PATH_FLAG = "--proto_path=";
-  public static final String JAVA_OUT_FLAG = "--java_out=";
-  public static final String FILES_FLAG = "--files=";
-  public static final String ROOTS_FLAG = "--roots=";
-  public static final String NO_OPTIONS_FLAG = "--no_options";
-  public static final String ENUM_OPTIONS_FLAG = "--enum_options=";
-  public static final String QUIET_FLAG = "--quiet";
-  public static final String DRY_RUN_FLAG = "--dry_run";
-  public static final String ANDROID = "--android";
-  public static final String FULL = "--full";
 
-  final List<String> protoPaths;
-  final String javaOut;
-  final List<String> sourceFileNames;
-  final List<String> roots;
-  final boolean emitOptions;
-  final Set<String> enumOptions;
-  final boolean quiet;
-  final boolean dryRun;
-  final boolean emitAndroid;
-  final boolean emitFull;
+    public static final String PROTO_PATH_FLAG = "--proto_path=";
 
-  CommandLineOptions(String protoPath, String javaOut, List<String> sourceFileNames,
-      List<String> roots, boolean emitOptions, Set<String> enumOptions, boolean quiet,
-      boolean dryRun, boolean emitAndroid, boolean emitFull) {
-    this.emitFull = emitFull;
-    this.protoPaths = Arrays.asList(protoPath);
-    this.javaOut = javaOut;
-    this.sourceFileNames = sourceFileNames;
-    this.roots = roots;
-    this.emitOptions = emitOptions;
-    this.enumOptions = enumOptions;
-    this.quiet = quiet;
-    this.dryRun = dryRun;
-    this.emitAndroid = emitAndroid;
-  }
+    public static final String JAVA_OUT_FLAG = "--java_out=";
 
-  /**
+    public static final String FILES_FLAG = "--files=";
+
+    public static final String ROOTS_FLAG = "--roots=";
+
+    public static final String NO_OPTIONS_FLAG = "--no_options";
+
+    public static final String ENUM_OPTIONS_FLAG = "--enum_options=";
+
+    public static final String QUIET_FLAG = "--quiet";
+
+    public static final String DRY_RUN_FLAG = "--dry_run";
+
+    public static final String ANDROID = "--android";
+
+    public static final String FULL = "--full";
+
+    final List<String> protoPaths;
+
+    final String javaOut;
+
+    final List<String> sourceFileNames;
+
+    final List<String> roots;
+
+    final boolean emitOptions;
+
+    final Set<String> enumOptions;
+
+    final boolean quiet;
+
+    final boolean dryRun;
+
+    final boolean emitAndroid;
+
+    final boolean emitFull;
+
+    CommandLineOptions(String protoPath, String javaOut, List<String> sourceFileNames, List<String> roots, boolean emitOptions, Set<String> enumOptions, boolean quiet, boolean dryRun, boolean emitAndroid, boolean emitFull) {
+        this.emitFull = emitFull;
+        this.protoPaths = Arrays.asList(protoPath);
+        this.javaOut = javaOut;
+        this.sourceFileNames = sourceFileNames;
+        this.roots = roots;
+        this.emitOptions = emitOptions;
+        this.enumOptions = enumOptions;
+        this.quiet = quiet;
+        this.dryRun = dryRun;
+        this.emitAndroid = emitAndroid;
+    }
+
+    /**
    * Usage:
    *
    * <pre>
@@ -114,65 +131,65 @@ final class CommandLineOptions {
    * The {@code --full} flag will emit implementations of reading, writing, and toString methods
    * which are normally implemented with reflection.
    */
-  CommandLineOptions(String... args) throws WireException {
-    List<String> sourceFileNames = new ArrayList<>();
-    List<String> roots = new ArrayList<>();
-    boolean emitOptions = true;
-    List<String> protoPaths = new ArrayList<>();
-    String javaOut = null;
-    String registryClass = null;
-    List<String> enumOptionsList = new ArrayList<>();
-    boolean quiet = false;
-    boolean dryRun = false;
-    boolean emitAndroid = false;
-    boolean emitFull = false;
-
-    for (String arg : args) {
-      if (arg.startsWith(PROTO_PATH_FLAG)) {
-        protoPaths.add(arg.substring(PROTO_PATH_FLAG.length()));
-      } else if (arg.startsWith(JAVA_OUT_FLAG)) {
-        javaOut = arg.substring(JAVA_OUT_FLAG.length());
-      } else if (arg.startsWith(FILES_FLAG)) {
-        File files = new File(arg.substring(FILES_FLAG.length()));
-        String[] fileNames;
-        try {
-          fileNames = new Scanner(files, "UTF-8").useDelimiter("\\A").next().split("\n");
-        } catch (FileNotFoundException ex) {
-          throw new WireException("Error processing argument " + arg, ex);
+    CommandLineOptions(String... args) throws WireException {
+        List<String> sourceFileNames = new ArrayList<>();
+        List<String> roots = new ArrayList<>();
+        boolean emitOptions = true;
+        List<String> protoPaths = new ArrayList<>();
+        String javaOut = null;
+        String registryClass = null;
+        List<String> enumOptionsList = new ArrayList<>();
+        boolean quiet = false;
+        boolean dryRun = false;
+        boolean emitAndroid = false;
+        boolean emitFull = false;
+        for (String arg : args) {
+            if (arg.startsWith(PROTO_PATH_FLAG)) {
+                protoPaths.add(arg.substring(PROTO_PATH_FLAG.length()));
+            } else if (arg.startsWith(JAVA_OUT_FLAG)) {
+                javaOut = arg.substring(JAVA_OUT_FLAG.length());
+            } else if (arg.startsWith(FILES_FLAG)) {
+                File files = new File(arg.substring(FILES_FLAG.length()));
+                String[] fileNames;
+                try {
+                    fileNames = new Scanner(files, "UTF-8").useDelimiter("\\A").next().split("\n");
+                } catch (FileNotFoundException ex) {
+                    throw new WireException("Error processing argument " + arg, ex);
+                }
+                sourceFileNames.addAll(Arrays.asList(fileNames));
+            } else if (arg.startsWith(ROOTS_FLAG)) {
+                roots.addAll(splitArg(arg, ROOTS_FLAG.length()));
+            } else if (arg.equals(NO_OPTIONS_FLAG)) {
+                emitOptions = false;
+            } else if (arg.startsWith(ENUM_OPTIONS_FLAG)) {
+                enumOptionsList.addAll(splitArg(arg, ENUM_OPTIONS_FLAG.length()));
+            } else if (arg.equals(QUIET_FLAG)) {
+                quiet = true;
+            } else if (arg.equals(DRY_RUN_FLAG)) {
+                dryRun = true;
+            } else if (arg.equals(ANDROID)) {
+                emitAndroid = true;
+            } else if (arg.equals(FULL)) {
+                emitFull = true;
+            } else if (arg.startsWith("--")) {
+                throw new IllegalArgumentException("Unknown argument '" + arg + "'.");
+            } else {
+                sourceFileNames.add(arg);
+            }
         }
-        sourceFileNames.addAll(Arrays.asList(fileNames));
-      } else if (arg.startsWith(ROOTS_FLAG)) {
-        roots.addAll(splitArg(arg, ROOTS_FLAG.length()));
-      } else if (arg.equals(NO_OPTIONS_FLAG)) {
-        emitOptions = false;
-      } else if (arg.startsWith(ENUM_OPTIONS_FLAG)) {
-        enumOptionsList.addAll(splitArg(arg, ENUM_OPTIONS_FLAG.length()));
-      } else if (arg.equals(QUIET_FLAG)) {
-        quiet = true;
-      } else if (arg.equals(DRY_RUN_FLAG)) {
-        dryRun = true;
-      } else if (arg.equals(ANDROID)) {
-        emitAndroid = true;
-      } else if (arg.equals(FULL)) {
-        emitFull = true;
-      } else {
-        sourceFileNames.add(arg);
-      }
+        this.protoPaths = protoPaths;
+        this.javaOut = javaOut;
+        this.sourceFileNames = sourceFileNames;
+        this.roots = roots;
+        this.emitOptions = emitOptions;
+        this.enumOptions = new LinkedHashSet<>(enumOptionsList);
+        this.quiet = quiet;
+        this.dryRun = dryRun;
+        this.emitAndroid = emitAndroid;
+        this.emitFull = emitFull;
     }
 
-    this.protoPaths = protoPaths;
-    this.javaOut = javaOut;
-    this.sourceFileNames = sourceFileNames;
-    this.roots = roots;
-    this.emitOptions = emitOptions;
-    this.enumOptions = new LinkedHashSet<>(enumOptionsList);
-    this.quiet = quiet;
-    this.dryRun = dryRun;
-    this.emitAndroid = emitAndroid;
-    this.emitFull = emitFull;
-  }
-
-  private static List<String> splitArg(String arg, int flagLength) {
-    return Arrays.asList(arg.substring(flagLength).split(","));
-  }
+    private static List<String> splitArg(String arg, int flagLength) {
+        return Arrays.asList(arg.substring(flagLength).split(","));
+    }
 }
